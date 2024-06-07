@@ -28,8 +28,9 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     },
 }));
 
-const ViewTable = ({ columns, rows, onSearch, onCreate }) => {
-    console.log(rows)
+const ViewTable = ({ rows, onSearch, onCreate }) => {
+    const tableHeader = Object.keys(rows[0])
+    
     const [searchQuery, setSearchQuery] = React.useState('');
 
     const handleSearchChange = (event) => {
@@ -58,9 +59,9 @@ const ViewTable = ({ columns, rows, onSearch, onCreate }) => {
                 <Table sx={{ minWidth: 700 }} aria-label="customized table">
                     <TableHead>
                         <TableRow>
-                            {columns?.map((column) => (
-                                <StyledTableCell key={column.field} align={column.align || 'left'}>
-                                    {column.headerName}
+                            {tableHeader?.map((column,index) => (
+                                <StyledTableCell key={index} align={'left'}>
+                                    {column}
                                 </StyledTableCell>
                             ))}
                             <StyledTableCell align="right">Actions</StyledTableCell>
@@ -69,9 +70,9 @@ const ViewTable = ({ columns, rows, onSearch, onCreate }) => {
                     <TableBody>
                         {rows?.map((row) => (
                             <StyledTableRow key={row.id}>
-                                {columns.map((column) => (
-                                    <StyledTableCell key={column.field} align={column.align || 'left'}>
-                                        {row[column.field]}
+                                {tableHeader.map((column,index) => (
+                                    <StyledTableCell key={index} align={'left'}>
+                                        {row[column]}
                                     </StyledTableCell>
                                 ))}
                                 <StyledTableCell align="right">

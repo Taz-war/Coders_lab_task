@@ -11,13 +11,13 @@ const initialRows = [
     { id: 7, ProductName: 'flour', brand: 'baker\'s choice', type: 'all-purpose', createdAt: '05/03/2024' }
 ];
 
-const columns = [
-    { field: 'id', headerName: 'ID' },
-    { field: 'ProductName', headerName: 'Name', align: 'right' },
-    { field: 'brand', headerName: 'Brand', align: 'right' },
-    { field: 'type', headerName: 'Type', align: 'right' },
-    { field: 'createdAt', headerName: 'Created at', align: 'right' }
-];
+// const columns = [
+//     { field: 'id', headerName: 'ID' },
+//     { field: 'ProductName', headerName: 'Name', align: 'right' },
+//     { field: 'brand', headerName: 'Brand', align: 'right' },
+//     { field: 'type', headerName: 'Type', align: 'right' },
+//     { field: 'createdAt', headerName: 'Created at', align: 'right' }
+// ];
 const ProductList = () => {
     const [rows, setRows] = useState(initialRows);
 
@@ -38,7 +38,6 @@ const ProductList = () => {
 
     return (
         <ViewTable 
-            columns={columns}
             rows={rows}
             onSearch={handleSearch}
             onCreate={handleCreate}
