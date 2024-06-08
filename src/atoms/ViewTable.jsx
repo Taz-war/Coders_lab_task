@@ -8,6 +8,7 @@ import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
 import { Button, TextField, Box, Toolbar, Typography } from '@mui/material';
+import SkeletonComponent from '../components/SkeletonComponent';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
     [`&.${tableCellClasses.head}`]: {
@@ -29,37 +30,23 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
 }));
 
 const ViewTable = ({ rows, onSearch, onCreate }) => {
-    const tableHeader = Object.keys(rows[0])
-    
-    const [searchQuery, setSearchQuery] = React.useState('');
 
-    const handleSearchChange = (event) => {
-        setSearchQuery(event.target.value);
-        onSearch(event.target.value);
-    };
+    if (rows.length === 0) {
+        return (
+            <SkeletonComponent />
+        )
+    }
+
+    const tableHeader = Object.keys(rows[0]);
 
     return (
         <>
-            <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Product Table
-                </Typography>
-                <Button variant="contained" color="primary" sx={{ mr: 2 }} onClick={onCreate}>
-                    Create
-                </Button>
-                <TextField
-                    variant="outlined"
-                    size="small"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={handleSearchChange}
-                />
-            </Toolbar>
+
             <TableContainer component={Paper}>
                 <Table sx={{ minWidth: 700 }} aria-label="customized table">
                     <TableHead>
                         <TableRow>
-                            {tableHeader?.map((column,index) => (
+                            {tableHeader?.map((column, index) => (
                                 <StyledTableCell key={index} align={'left'}>
                                     {column}
                                 </StyledTableCell>
@@ -70,7 +57,7 @@ const ViewTable = ({ rows, onSearch, onCreate }) => {
                     <TableBody>
                         {rows?.map((row) => (
                             <StyledTableRow key={row.id}>
-                                {tableHeader.map((column,index) => (
+                                {tableHeader.map((column, index) => (
                                     <StyledTableCell key={index} align={'left'}>
                                         {row[column]}
                                     </StyledTableCell>

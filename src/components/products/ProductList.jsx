@@ -1,48 +1,98 @@
-import React, { useState } from 'react'
-import ViewTable from '../../atoms/ViewTable';
+import React, { useEffect, useState } from "react";
+import ViewTable from "../../atoms/ViewTable";
+import { Box, Button, TextField, Toolbar, Typography } from "@mui/material";
+import SkeletonComponent from "../SkeletonComponent";
 
-const initialRows = [
-    { id: 1, ProductName: 'oil', brand: 'sunflower', type: 'soya bean', createdAt: '10/02/2024' },
-    { id: 2, ProductName: 'sugar', brand: 'sweetie', type: 'cane sugar', createdAt: '15/02/2024' },
-    { id: 3, ProductName: 'milk', brand: 'dairy delight', type: 'cow milk', createdAt: '20/02/2024' },
-    { id: 4, ProductName: 'bread', brand: 'bakehouse', type: 'whole grain', createdAt: '25/02/2024' },
-    { id: 5, ProductName: 'butter', brand: 'farm fresh', type: 'unsalted', createdAt: '28/02/2024' },
-    { id: 6, ProductName: 'eggs', brand: 'chicken coop', type: 'organic', createdAt: '02/03/2024' },
-    { id: 7, ProductName: 'flour', brand: 'baker\'s choice', type: 'all-purpose', createdAt: '05/03/2024' }
-];
-
-// const columns = [
-//     { field: 'id', headerName: 'ID' },
-//     { field: 'ProductName', headerName: 'Name', align: 'right' },
-//     { field: 'brand', headerName: 'Brand', align: 'right' },
-//     { field: 'type', headerName: 'Type', align: 'right' },
-//     { field: 'createdAt', headerName: 'Created at', align: 'right' }
-// ];
 const ProductList = () => {
-    const [rows, setRows] = useState(initialRows);
+  const [rows, setRows] = useState([]);
+  const [fetchedData, setFetchedData] = useState();
+  const [loader, setLoader] = useState(false);
+  const [originalData, setOriginalData] = useState([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
-    const handleSearch = (query) => {
-        const filteredRows = initialRows.filter((row) =>
-            row.ProductName.toLowerCase().includes(query.toLowerCase()) ||
-            row.brand.toLowerCase().includes(query.toLowerCase()) ||
-            row.type.toLowerCase().includes(query.toLowerCase()) ||
-            row.createdAt.includes(query)
+  useEffect(() => {
+    setLoader(true);
+    const fetchData = async () => {
+      try {
+        const res = await fetch(
+          `https://reactjr.coderslab.online/api/products?search=Ru&per_page=10&page`
         );
-        setRows(filteredRows);
+        const data = await res.json();
+        setFetchedData(data);
+      } catch (error) {
+        console.error("Error fetching data:", error);
+      } finally {
+        setLoader(false);
+      }
     };
 
-    const handleCreate = () => {
-        // Logic for creating a new row
-        console.log('Create button clicked');
-    };
+    fetchData();
+  }, []);
 
-    return (
-        <ViewTable 
-            rows={rows}
-            onSearch={handleSearch}
-            onCreate={handleCreate}
+  useEffect(() => {
+    if (fetchedData) {
+      const transformedData = fetchedData?.data?.data.map((item) => ({
+        id: item.id,
+        ProductName: item.name,
+        brand: item.brand,
+        type: item.type,
+        createdAt: new Date(item.created_at).toLocaleDateString("en-GB"),
+      }));
+      setRows(transformedData);
+      setOriginalData(transformedData); // Save the original data
+    }
+  }, [fetchedData]);
+
+  const handleSearch = (query) => {
+    if (query) {
+      const filteredRows = originalData.filter(
+        (row) =>
+          row.ProductName.toLowerCase().includes(query.toLowerCase()) ||
+          row.brand.toLowerCase().includes(query.toLowerCase()) ||
+          row.type.toLowerCase().includes(query.toLowerCase()) ||
+          row.createdAt.includes(query) ||
+          row.id.toString().includes(query)  
+      );
+      setRows(filteredRows);
+    } else {
+      setRows(originalData); // Reset to original data when query is empty
+    }
+  };
+
+  const handleCreate = () => {
+    // Logic for creating a new row
+    console.log("Create button clicked");
+  };
+  console.log(rows)
+
+  return (
+    <Box>
+         <Toolbar>
+                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+                    Product Table
+                </Typography>
+                <Button variant="contained" color="primary" sx={{ mr: 2 }} onClick={handleCreate}>
+                    Create
+                </Button>
+                <TextField
+                    variant="outlined"
+                    size="small"
+                    placeholder="Search..."
+                    value={searchQuery}
+                    onChange={(e)=>{setSearchQuery(e.target.value); handleSearch(e.target.value)}}
+                />
+            </Toolbar>
+      {loader ? (
+        <SkeletonComponent />
+      ) : (
+        <ViewTable
+          rows={rows}
+          onSearch={handleSearch}
+          onCreate={handleCreate}
         />
-    );
-}
+      )}
+    </Box>
+  );
+};
 
-export default ProductList
+export default ProductList;
