@@ -69,7 +69,7 @@ const ProductList = () => {
   };
   const generateId = () => Math.floor(Math.random() * 100000); // Generates a random ID
 
-  const handleSubmit = (formData) => {
+  const handleSubmit = async (formData) => {
     const timestamp = new Date().toISOString();
     const productId = generateId();
     const newProduct = {
@@ -85,12 +85,35 @@ const ProductList = () => {
         updated_at: timestamp,
       })),
     };
-    console.log(newProduct);
-    // Add the new product to the rows (you might want to send it to your server as well)
-    setRows([...rows, newProduct]);
-    setOriginalData([...rows, newProduct]);
+
+    try {
+      const response = await fetch("https://reactjr.coderslab.online/api/products", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(newProduct),
+      });
+
+      if (!response.ok) {
+        const text = await response.text();
+        console.error("Error response from server:", text);
+        throw new Error(`Network response was not ok: ${response.statusText}`);
+      }
+
+      const result = await response.json();
+      console.log(result);
+
+      // Add the new product to the rows
+      setRows([...rows, result]);
+      setOriginalData([...rows, result]);
+    } catch (error) {
+      console.error("Error posting data:", error);
+    }
+
     handleClose();
   };
+
 
   return (
     <Box>
