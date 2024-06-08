@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from "react";
 import ViewTable from "../../atoms/ViewTable";
-import { Box, Button, TextField, Toolbar, Typography } from "@mui/material";
+import { Box, Button, Dialog, DialogActions, DialogContent, DialogTitle, TextField, Toolbar, Typography } from "@mui/material";
 import SkeletonComponent from "../SkeletonComponent";
+import ProductForm from "./ProductForm";
 
 const ProductList = () => {
   const [rows, setRows] = useState([]);
@@ -9,6 +10,7 @@ const ProductList = () => {
   const [loader, setLoader] = useState(false);
   const [originalData, setOriginalData] = useState([]);
   const [searchQuery, setSearchQuery] = useState('');
+  const [open, setOpen] = useState(false);
 
   useEffect(() => {
     setLoader(true);
@@ -33,7 +35,7 @@ const ProductList = () => {
     if (fetchedData) {
       const transformedData = fetchedData?.data?.data.map((item) => ({
         id: item.id,
-        ProductName: item.name,
+        Name: item.name,
         brand: item.brand,
         type: item.type,
         createdAt: new Date(item.created_at).toLocaleDateString("en-GB"),
@@ -47,7 +49,7 @@ const ProductList = () => {
     if (query) {
       const filteredRows = originalData.filter(
         (row) =>
-          row.ProductName.toLowerCase().includes(query.toLowerCase()) ||
+          row.Name.toLowerCase().includes(query.toLowerCase()) ||
           row.brand.toLowerCase().includes(query.toLowerCase()) ||
           row.type.toLowerCase().includes(query.toLowerCase()) ||
           row.createdAt.includes(query) ||
@@ -60,10 +62,35 @@ const ProductList = () => {
   };
 
   const handleCreate = () => {
-    // Logic for creating a new row
-    console.log("Create button clicked");
+    setOpen(true)
   };
-  console.log(rows)
+  const handleClose = () => {
+    setOpen(false);
+  };
+  const generateId = () => Math.floor(Math.random() * 100000); // Generates a random ID
+
+  const handleSubmit = (formData) => {
+    const timestamp = new Date().toISOString();
+    const productId = generateId();
+    const newProduct = {
+      id: productId,
+      ...formData,
+      created_at: timestamp,
+      updated_at: timestamp,
+      variants: formData.variants.map((variant) => ({
+        id: generateId(),
+        product_id: productId,
+        ...variant,
+        created_at: timestamp,
+        updated_at: timestamp,
+      })),
+    };
+    console.log(newProduct);
+    // Add the new product to the rows (you might want to send it to your server as well)
+    setRows([...rows, newProduct]);
+    setOriginalData([...rows, newProduct]);
+    handleClose();
+  };
 
   return (
     <Box>
@@ -91,6 +118,20 @@ const ProductList = () => {
           onCreate={handleCreate}
         />
       )}
+      <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
+        <DialogTitle>Product (Create/View/Edit)</DialogTitle>
+        <DialogContent>
+          <ProductForm onSubmit={handleSubmit} />
+        </DialogContent>
+        <DialogActions>
+          <Button onClick={handleClose} color="secondary">
+            Cancel
+          </Button>
+          <Button form="product-form" type="submit" color="primary">
+            Submit
+          </Button>
+        </DialogActions>
+      </Dialog>
     </Box>
   );
 };
