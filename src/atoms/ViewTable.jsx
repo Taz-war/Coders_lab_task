@@ -7,7 +7,7 @@ import TableContainer from '@mui/material/TableContainer';
 import TableHead from '@mui/material/TableHead';
 import TableRow from '@mui/material/TableRow';
 import Paper from '@mui/material/Paper';
-import { Button, TextField, Box, Toolbar, Typography } from '@mui/material';
+import { Button, Box } from '@mui/material';
 import SkeletonComponent from '../components/SkeletonComponent';
 
 const StyledTableCell = styled(TableCell)(({ theme }) => ({
@@ -29,8 +29,7 @@ const StyledTableRow = styled(TableRow)(({ theme }) => ({
     },
 }));
 
-const ViewTable = ({ rows, onSearch, onCreate }) => {
-
+const ViewTable = ({ rows, onEdit }) => {
     if (rows.length === 0) {
         return (
             <SkeletonComponent />
@@ -40,37 +39,34 @@ const ViewTable = ({ rows, onSearch, onCreate }) => {
     const tableHeader = Object.keys(rows[0]);
 
     return (
-        <>
-
-            <TableContainer component={Paper}>
-                <Table sx={{ minWidth: 700 }} aria-label="customized table">
-                    <TableHead>
-                        <TableRow>
-                            {tableHeader?.map((column, index) => (
+        <TableContainer component={Paper}>
+            <Table sx={{ minWidth: 700 }} aria-label="customized table">
+                <TableHead>
+                    <TableRow>
+                        {tableHeader?.map((column, index) => (
+                            <StyledTableCell key={index} align={'left'}>
+                                {column}
+                            </StyledTableCell>
+                        ))}
+                        <StyledTableCell align="right">Actions</StyledTableCell>
+                    </TableRow>
+                </TableHead>
+                <TableBody>
+                    {rows?.map((row) => (
+                        <StyledTableRow key={row.id}>
+                            {tableHeader.map((column, index) => (
                                 <StyledTableCell key={index} align={'left'}>
-                                    {column}
+                                    {row[column]}
                                 </StyledTableCell>
                             ))}
-                            <StyledTableCell align="right">Actions</StyledTableCell>
-                        </TableRow>
-                    </TableHead>
-                    <TableBody>
-                        {rows?.map((row) => (
-                            <StyledTableRow key={row.id}>
-                                {tableHeader.map((column, index) => (
-                                    <StyledTableCell key={index} align={'left'}>
-                                        {row[column]}
-                                    </StyledTableCell>
-                                ))}
-                                <StyledTableCell align="right">
-                                    <Button variant='contained'>edit</Button>
-                                </StyledTableCell>
-                            </StyledTableRow>
-                        ))}
-                    </TableBody>
-                </Table>
-            </TableContainer>
-        </>
+                            <StyledTableCell align="right">
+                                <Button variant='contained' onClick={() => onEdit(row)}>Edit</Button>
+                            </StyledTableCell>
+                        </StyledTableRow>
+                    ))}
+                </TableBody>
+            </Table>
+        </TableContainer>
     );
 };
 

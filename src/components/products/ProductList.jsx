@@ -53,7 +53,7 @@ const ProductList = () => {
           row.brand.toLowerCase().includes(query.toLowerCase()) ||
           row.type.toLowerCase().includes(query.toLowerCase()) ||
           row.createdAt.includes(query) ||
-          row.id.toString().includes(query)  
+          row.id.toString().includes(query)
       );
       setRows(filteredRows);
     } else {
@@ -74,13 +74,18 @@ const ProductList = () => {
     const productId = generateId();
     const newProduct = {
       id: productId,
-      ...formData,
+      name: formData.name,
+      brand: formData.brand,
+      type: formData.type,
+      origin: formData.origin,
       created_at: timestamp,
       updated_at: timestamp,
       variants: formData.variants.map((variant) => ({
         id: generateId(),
         product_id: productId,
-        ...variant,
+        color: variant.color,
+        specification: variant.specification,
+        size: variant.size,
         created_at: timestamp,
         updated_at: timestamp,
       })),
@@ -91,8 +96,19 @@ const ProductList = () => {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
+          "Accept": "application/json",
         },
-        body: JSON.stringify(newProduct),
+        body: JSON.stringify({
+          name: newProduct.name,
+          brand: newProduct.brand,
+          type: newProduct.type,
+          origin: newProduct.origin,
+          variants: newProduct.variants.map(variant => ({
+            color: variant.color,
+            specification: variant.specification,
+            size: variant.size
+          }))
+        }),
       });
 
       if (!response.ok) {
@@ -114,31 +130,28 @@ const ProductList = () => {
     handleClose();
   };
 
-
   return (
     <Box>
-         <Toolbar>
-                <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
-                    Product Table
-                </Typography>
-                <Button variant="contained" color="primary" sx={{ mr: 2 }} onClick={handleCreate}>
-                    Create
-                </Button>
-                <TextField
-                    variant="outlined"
-                    size="small"
-                    placeholder="Search..."
-                    value={searchQuery}
-                    onChange={(e)=>{setSearchQuery(e.target.value); handleSearch(e.target.value)}}
-                />
-            </Toolbar>
+      <Toolbar>
+        <Typography variant="h6" component="div" sx={{ flexGrow: 1 }}>
+          Product Table
+        </Typography>
+        <Button variant="contained" color="primary" sx={{ mr: 2 }} onClick={handleCreate}>
+          Create
+        </Button>
+        <TextField
+          variant="outlined"
+          size="small"
+          placeholder="Search..."
+          value={searchQuery}
+          onChange={(e) => { setSearchQuery(e.target.value); handleSearch(e.target.value) }}
+        />
+      </Toolbar>
       {loader ? (
         <SkeletonComponent />
       ) : (
         <ViewTable
           rows={rows}
-          onSearch={handleSearch}
-          onCreate={handleCreate}
         />
       )}
       <Dialog open={open} onClose={handleClose} maxWidth="md" fullWidth>
